@@ -1,0 +1,3 @@
+.prismaignore
+.mkpm/
+/*.tar.gz
