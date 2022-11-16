@@ -1,9 +1,9 @@
 # File: /main.mk
 # Project: mkpm-prisma
-# File Created: 06-05-2022 03:17:23
+# File Created: 04-11-2022 08:10:52
 # Author: Clay Risser
 # -----
-# Last Modified: 04-11-2022 08:20:03
+# Last Modified: 16-11-2022 08:46:12
 # Modified By: Clay Risser
 # -----
 # Risser Labs LLC (c) Copyright 2021 - 2022
@@ -21,28 +21,33 @@
 # limitations under the License.
 
 BABEL_NODE ?= $(call yarn_binary,babel-node)
-DATABASE_ENGINE ?= sqlite
+PRISMA_DATABASE_ENGINE ?= sqlite
 NODE_MODULES_BIN ?= $(PROJECT_ROOT)/node_modules/.bin
 PRISMA ?= $(call yarn_binary,prisma)
 WAIT_FOR_POSTGRES ?= $(call yarn_binary,wait-for-postgres)
 
 .PHONY: deploy
-deploy: $(DATABASE_ENGINE) ##
-ifneq ($(DATABASE_ENGINE),none)
+deploy: $(PRISMA_DATABASE_ENGINE) ##
+ifneq ($(PRISMA_DATABASE_ENGINE),none)
 	@$(EXPORT) PATH="$(NODE_MODULES_BIN):$(PATH)" && \
 		$(PRISMA) migrate deploy $(ARGS)
+endif
+ifeq ($(PRISMA_SEED),1)
 	@$(MAKE) -s seed
 endif
 
 .PHONY: dev
-dev: $(DATABASE_ENGINE) deploy ##
-ifneq ($(DATABASE_ENGINE),none)
+dev: $(PRISMA_DATABASE_ENGINE) ##
+ifneq ($(PRISMA_DATABASE_ENGINE),none)
 	@$(EXPORT) PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(ECHO) | $(PRISMA) migrate dev --skip-generate $(ARGS)
+		$(ECHO) | $(PRISMA) migrate dev $(ARGS)
+endif
+ifeq ($(PRISMA_SEED),1)
+	@$(MAKE) -s seed
 endif
 
 .PHONY: reset
-reset: $(DATABASE_ENGINE) ##
+reset: $(PRISMA_DATABASE_ENGINE) ##
 	@$(EXPORT) PATH="$(NODE_MODULES_BIN):$(PATH)" && \
 		$(ECHO) | $(PRISMA) migrate reset $(ARGS)
 
@@ -53,11 +58,11 @@ squash: ##
 	@$(MAKE) -s dev
 
 .PHONY: pull
-pull: $(DATABASE_ENGINE) ##
+pull: $(PRISMA_DATABASE_ENGINE) ##
 	@$(PRISMA) db pull
 
 .PHONY: push
-push: $(DATABASE_ENGINE) ##
+push: $(PRISMA_DATABASE_ENGINE) ##
 	@$(PRISMA) db push
 
 .PHONY: format
@@ -65,15 +70,15 @@ format: ##
 	@$(PRISMA) format
 
 .PHONY: studio
-studio: $(DATABASE_ENGINE) ##
-	@$(PRISMA) studio $(ARGS)
+studio: $(PRISMA_DATABASE_ENGINE) ##
+	@$(PRISMA) studio -p $(PRISMA_STUDIO_PORT) $(ARGS)
 
 .PHONY: generate
 generate: ##
 	@$(PRISMA) generate $(ARGS)
 
 .PHONY: seed +seed
-seed: $(DATABASE_ENGINE) ##
+seed: $(PRISMA_DATABASE_ENGINE) ##
 	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
 		$(PRISMA) db seed $(ARGS)
 +seed: $(PROJECT_ROOT)/dist/seed.js
