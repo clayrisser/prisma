@@ -3,7 +3,7 @@
 # File Created: 04-11-2022 08:10:52
 # Author: Clay Risser
 # -----
-# Last Modified: 16-11-2022 10:11:10
+# Last Modified: 16-11-2022 10:35:57
 # Modified By: Clay Risser
 # -----
 # Risser Labs LLC (c) Copyright 2021 - 2022
@@ -77,10 +77,11 @@ studio: $(PRISMA_DATABASE_ENGINE) ##
 generate: ##
 	@$(PRISMA) generate $(ARGS)
 
-.PHONY: seed +seed
+.PHONY: seed seed@build
 seed: $(PROJECT_ROOT)/dist/seed.js $(PRISMA_DATABASE_ENGINE) ##
 	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
 		$(PRISMA) db seed $(ARGS)
+seed@build: $(PROJECT_ROOT)/dist/seed.js
 $(PROJECT_ROOT)/dist/seed.js: $(PROJECT_ROOT)/prisma/seed.ts $(PROJECT_ROOT)/package.json
 	@$(CD) $(PROJECT_ROOT) && $(WEBPACK) --output-filename seed.js $<
 

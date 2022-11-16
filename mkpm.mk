@@ -3,7 +3,7 @@
 # File Created: 07-10-2021 16:58:49
 # Author: Clay Risser
 # -----
-# Last Modified: 16-11-2022 10:11:14
+# Last Modified: 16-11-2022 10:36:10
 # Modified By: Clay Risser
 # -----
 # Risser Labs LLC (c) Copyright 2021
@@ -22,7 +22,7 @@
 
 MKPM_PKG_NAME := prisma
 
-MKPM_PKG_VERSION := 0.0.4
+MKPM_PKG_VERSION := 0.0.5
 
 MKPM_PKG_DESCRIPTION := "manage prisma using make"
 
