@@ -1,4 +1,4 @@
 .prismaignore
-/*.tar.gz
+
 # mkpm
 .mkpm/mkpm
