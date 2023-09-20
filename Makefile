@@ -3,10 +3,10 @@
 # File Created: 03-08-2023 18:03:28
 # Author: Ajith Kumar
 # -----
-# Last Modified: 03-08-2023 18:03:42
-# Modified By: Ajith Kumar
+# Last Modified: 18-09-2023 13:00:30
+# Modified By: Clay Risser
 # -----
-# Risser Labs LLC (c) Copyright 2021 - 2023
+# BitSpur (c) Copyright 2021 - 2023
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
