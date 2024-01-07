@@ -30,7 +30,7 @@ ifneq ($(PRISMA_DATABASE_ENGINE),none)
 		$(PRISMA) migrate deploy $(DEPLOY_ARGS)
 endif
 ifeq ($(PRISMA_SEED),1)
-	@$(MAKE) -s seed
+	@$(MKPM_MAKE) seed
 endif
 
 .PHONY: dev
@@ -40,7 +40,7 @@ ifneq ($(PRISMA_DATABASE_ENGINE),none)
 		$(ECHO) | $(PRISMA) migrate dev $(DEV_ARGS)
 endif
 ifeq ($(PRISMA_SEED),1)
-	@$(MAKE) -s seed
+	@$(MKPM_MAKE) seed
 endif
 
 .PHONY: reset
@@ -51,8 +51,8 @@ reset: $(PRISMA_DATABASE_ENGINE) ##
 .PHONY: squash
 squash: ##
 	@$(RM) -rf migrations $(NOFAIL)
-	@$(MAKE) -s reset
-	@$(MAKE) -s dev
+	@$(MKPM_MAKE) reset
+	@$(MKPM_MAKE) dev
 
 .PHONY: pull
 pull: $(PRISMA_DATABASE_ENGINE) ##
@@ -89,7 +89,7 @@ dist/seed.js: seed.ts ../package.json
 
 .PHONY: postgres sqlite
 postgres:
-	@$(MKPM_MAKE) -s -C $(DOCKER_PATH) postgres-d
+	@$(MKPM_MAKE) -C $(DOCKER_PATH) postgres-d
 	@$(WAIT_FOR_POSTGRES)
 sqlite: ##
 
