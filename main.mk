@@ -24,8 +24,8 @@ TSUP ?= $(YARN) tsup
 
 export POSTGRES_URL ?= \
 	postgresql://$(POSTGRES_PASSWORD):$(POSTGRES_USER)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DATABASE)?sslmode=prefer
-WAIT_FOR_POSTGRES ?= until $(PSQL) "$(POSTGRES_URL)" -c '\q' 2>&1 | \
-	$(SED) "s/^/waiting for postgres: /" && break; do sleep 1; done; sleep 1 && echo "postgres ready"
+WAIT_FOR_POSTGRES ?= $(ECHO) 'waiting for postgres...' && \
+	until $(PSQL) "$(POSTGRES_URL)" -c '\q' && break; do sleep 1; done; sleep 1 && echo "postgres ready"
 
 .PHONY: deploy
 deploy: $(PRISMA_DATABASE_ENGINE) ##
