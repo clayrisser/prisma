@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DOCKER_PATH ?= $(PROJECT_ROOT)/docker
 NODE_MODULES_BIN ?= $(PROJECT_ROOT)/node_modules/.bin
 PRISMA ?= $(call yarn_binary,prisma)
 PRISMA_DATABASE_ENGINE ?= sqlite
@@ -88,7 +89,7 @@ dist/seed.js: seed.ts ../package.json
 
 .PHONY: postgres sqlite
 postgres:
-	@$(MAKE) -s -C ../docker postgres-d
+	@$(MKPM_MAKE) -s -C $(DOCKER_PATH) postgres-d
 	@$(WAIT_FOR_POSTGRES)
 sqlite: ##
 
