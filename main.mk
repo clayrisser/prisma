@@ -17,17 +17,20 @@
 # limitations under the License.
 
 DOCKER_PATH ?= $(PROJECT_ROOT)/docker
-NODE_MODULES_BIN ?= $(PROJECT_ROOT)/node_modules/.bin
-PRISMA ?= $(call yarn_binary,prisma)
+PRISMA ?= $(YARN) prisma
 PRISMA_DATABASE_ENGINE ?= sqlite
-TSUP ?= $(call yarn_binary,tsup)
-WAIT_FOR_POSTGRES ?= $(call yarn_binary,wait-for-postgres)
+PSQL ?= psql
+TSUP ?= $(YARN) tsup
+
+export POSTGRES_URL ?= \
+	postgresql://$(POSTGRES_PASSWORD):$(POSTGRES_USER)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DATABASE)?sslmode=prefer
+WAIT_FOR_POSTGRES ?= until $(PSQL) "$(POSTGRES_URL)" -c '\q' 2>&1 | \
+	$(SED) "s/^/waiting for postgres: /" && break; do sleep 1; done; sleep 1 && echo "postgres ready"
 
 .PHONY: deploy
 deploy: $(PRISMA_DATABASE_ENGINE) ##
 ifneq ($(PRISMA_DATABASE_ENGINE),none)
-	@$(EXPORT) PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) migrate deploy $(DEPLOY_ARGS)
+	@$(PRISMA) migrate deploy $(DEPLOY_ARGS)
 endif
 ifeq ($(PRISMA_SEED),1)
 	@$(MKPM_MAKE) seed
@@ -36,8 +39,7 @@ endif
 .PHONY: dev
 dev: $(PRISMA_DATABASE_ENGINE) ##
 ifneq ($(PRISMA_DATABASE_ENGINE),none)
-	@$(EXPORT) PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(ECHO) | $(PRISMA) migrate dev $(DEV_ARGS)
+	@$(ECHO) | $(PRISMA) migrate dev $(DEV_ARGS)
 endif
 ifeq ($(PRISMA_SEED),1)
 	@$(MKPM_MAKE) seed
@@ -45,8 +47,7 @@ endif
 
 .PHONY: reset
 reset: $(PRISMA_DATABASE_ENGINE) ##
-	@$(EXPORT) PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(ECHO) | $(PRISMA) migrate reset $(RESET_ARGS)
+	@$(ECHO) | $(PRISMA) migrate reset $(RESET_ARGS)
 
 .PHONY: squash
 squash: ##
@@ -56,33 +57,27 @@ squash: ##
 
 .PHONY: pull
 pull: $(PRISMA_DATABASE_ENGINE) ##
-	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) db pull $(PULL_ARGS)
+	@$(PRISMA) db pull $(PULL_ARGS)
 
 .PHONY: push
 push: $(PRISMA_DATABASE_ENGINE) ##
-	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) db push $(PUSH_ARGS)
+	@$(PRISMA) db push $(PUSH_ARGS)
 
 .PHONY: format
 format: ##
-	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) format $(FORMAT_ARGS)
+	@$(PRISMA) format $(FORMAT_ARGS)
 
 .PHONY: studio
 studio: $(PRISMA_DATABASE_ENGINE) ##
-	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) studio -p $(PRISMA_STUDIO_PORT) $(STUDIO_ARGS)
+	@$(PRISMA) studio -p $(PRISMA_STUDIO_PORT) $(STUDIO_ARGS)
 
 .PHONY: generate
 generate: ##
-	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) generate $(GENERATE_ARGS)
+	@$(PRISMA) generate $(GENERATE_ARGS)
 
 .PHONY: seed seed@build
 seed: dist/seed.js $(PRISMA_DATABASE_ENGINE) ##
-	@export PATH="$(NODE_MODULES_BIN):$(PATH)" && \
-		$(PRISMA) db seed $(SEED_ARGS)
+	@$(PRISMA) db seed $(SEED_ARGS)
 seed@build: dist/seed.js
 dist/seed.js: seed.ts ../package.json
 	@$(TSUP)
@@ -96,8 +91,3 @@ sqlite: ##
 .PHONY: none
 none:
 	@$(ECHO) NO DATABASE ENGINE
-
-CACHE_ENVS += \
-	PRISMA \
-	TSUP \
-	WAIT_FOR_POSTGRES
