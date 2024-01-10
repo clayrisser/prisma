@@ -19,6 +19,7 @@
 DOCKER_PATH ?= $(PROJECT_ROOT)/docker
 PRISMA ?= $(YARN) prisma
 PRISMA_DATABASE_ENGINE ?= sqlite
+PRISMA_STUDIO_PORT ?= 5555
 PSQL ?= psql
 TSUP ?= $(YARN) tsup
 
