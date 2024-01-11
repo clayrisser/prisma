@@ -29,7 +29,7 @@ WAIT_FOR_POSTGRES ?= $(ECHO) 'waiting for postgres...' && \
 	until $(PSQL) "$(POSTGRES_URL)" -c '\q' && break; do sleep 1; done; sleep 1 && echo "postgres ready"
 
 .PHONY: deploy
-deploy: $(PRISMA_DATABASE_ENGINE) ##
+deploy: dist/seed.js $(PRISMA_DATABASE_ENGINE) ##
 ifneq ($(PRISMA_DATABASE_ENGINE),none)
 	@$(PRISMA) migrate deploy $(DEPLOY_ARGS)
 endif
@@ -38,7 +38,7 @@ ifeq ($(PRISMA_SEED),1)
 endif
 
 .PHONY: dev
-dev: $(PRISMA_DATABASE_ENGINE) ##
+dev: dist/seed.js $(PRISMA_DATABASE_ENGINE) ##
 ifneq ($(PRISMA_DATABASE_ENGINE),none)
 	@$(ECHO) | $(PRISMA) migrate dev $(DEV_ARGS)
 endif
